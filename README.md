@@ -5,13 +5,17 @@ Helper classes for unity development
 
 This is meant to be classes that you can reference into your unity project
 
-Copy this dll from:
+This project's references are to the unity install location.  Since that's constantly getting updated, you'll probably have to repair those references before compiling
+
+After compiling, copy this dll from:
 PerfectlyNormalUnity\bin\Debug\netstandard2.0\PerfectlyNormalUnity.dll
 
 To anywhere under your unity Assets folder (I like to make a lib folder)
 
 Then any class that you want to use this from needs a using statment at the top:
 using PerfectlyNormalUnity;
+
+Alternatively, you can probably just copy the classes into a folder under Assets and let everything live inside unity
 
 ---------------------------------
 

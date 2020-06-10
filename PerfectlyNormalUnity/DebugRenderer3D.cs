@@ -169,6 +169,10 @@ namespace PerfectlyNormalUnity
             return retVal;
         }
 
+        public DebugItem AddPlane(Plane plane, float size, Color color, int numCells = 12, Vector3? center = null, Component relativeToComponent = null, GameObject relativeToGameObject = null)
+        {
+            return AddPlane_PointNormal(plane.ClosestPointOnPlane(Vector3.zero), plane.normal, size, color, numCells, center, relativeToComponent, relativeToGameObject);
+        }
         public DebugItem AddPlane_ThreePoints(Vector3 trianglePt1, Vector3 trianglePt2, Vector3 trianglePt3, float size, Color color, int numCells = 12, Vector3? center = null, Component relativeToComponent = null, GameObject relativeToGameObject = null)
         {
             //https://galasoft.ch/posts/2016/06/unity-adding-children-to-a-gameobject-in-code-and-retrieving-them
@@ -280,6 +284,13 @@ namespace PerfectlyNormalUnity
 
             removeMatches(_stationary);
             removeMatches(_relativeTo);
+        }
+        public void Remove(IEnumerable<DebugItem> items)
+        {
+            foreach (DebugItem item in items)
+            {
+                Remove(item);
+            }
         }
         public void Clear()
         {

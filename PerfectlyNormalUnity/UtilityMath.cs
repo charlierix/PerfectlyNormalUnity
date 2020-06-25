@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace PerfectlyNormalUnity
 {
@@ -234,7 +235,7 @@ namespace PerfectlyNormalUnity
             return retVal.ToArray();
         }
 
-        private static string[] _suffix = { "  ", "K", "M", "G", "T", "P", "E", "Z", "Y" };  // longs run out around EB -- yotta is bigger than zetta :)
+        private static string[] _suffix = { " ", "K", "M", "G", "T", "P", "E", "Z", "Y" };  // longs run out around EB -- yotta is bigger than zetta :)
         public static string GetSizeDisplay(long size, int decimalPlaces = 0, bool includeB = false)
         {
             //http://stackoverflow.com/questions/281640/how-do-i-get-a-human-readable-file-size-in-bytes-abbreviation-using-net
@@ -281,6 +282,23 @@ namespace PerfectlyNormalUnity
             }
 
             yield return (count - 1, 0);
+        }
+
+        /// <summary>
+        /// This rotates the angle until it's between -360 and 360.  Then it clamps between min and max
+        /// </summary>
+        public static float ClampAngle(float angle, float min, float max)
+        {
+            while (true)
+            {
+                if (angle < -360f)
+                    angle += 360f;
+                else if (angle > 360f)
+                    angle -= 360f;
+                else break;
+            }
+
+            return Mathf.Clamp(angle, min, max);
         }
     }
 }

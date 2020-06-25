@@ -28,7 +28,8 @@ namespace PerfectlyNormalUnity
             {
                 for (int i = 0; i < sphereCastHits.Length; i++)
                 {
-                    sphereCastHits[i].collider.gameObject.GetComponent<Renderer>().material.color = new Color(1f, 1f, 1f);
+                    //sphereCastHits[i].collider.gameObject.GetComponent<Renderer>().material.color = new Color(1f, 1f, 1f);        // for debugging
+
                     Vector3 hitPoint = sphereCastHits[i].point;
                     Vector3 directionToHit = hitPoint - axis.origin;
                     float angleToHit = Vector3.Angle(axis.direction, directionToHit);

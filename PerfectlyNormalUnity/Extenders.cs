@@ -499,6 +499,15 @@ namespace PerfectlyNormalUnity
 
         #endregion
 
+        #region color
+
+        public static ColorHSV ToHSV(this Color color)
+        {
+            return new ColorHSV(color);
+        }
+
+        #endregion
+
         #region system.random
 
         //NOTE: UnityEngine.Random isn't threadsafe, so use StaticRandom instead
@@ -732,11 +741,10 @@ namespace PerfectlyNormalUnity
         {
             return Color.HSVToRGB
             (
-                rand.NextFloat(hueMin, hueMax),
-                rand.NextFloat(saturationMin, saturationMax),
-                rand.NextFloat(valueMin, valueMax)
+                Mathf.Clamp(rand.NextFloat(hueMin, hueMax), 0, 1),
+                Mathf.Clamp(rand.NextFloat(saturationMin, saturationMax), 0, 1),
+                Mathf.Clamp(rand.NextFloat(valueMin, valueMax), 0, 1)
             );
-
         }
 
         public static Color ColorHSVA(this System.Random rand, float alphaMin, float alphaMax)
@@ -751,12 +759,40 @@ namespace PerfectlyNormalUnity
         {
             Color color = Color.HSVToRGB
             (
-                rand.NextFloat(hueMin, hueMax),
-                rand.NextFloat(saturationMin, saturationMax),
-                rand.NextFloat(valueMin, valueMax)
+                Mathf.Clamp(rand.NextFloat(hueMin, hueMax), 0, 1),
+                Mathf.Clamp(rand.NextFloat(saturationMin, saturationMax), 0, 1),
+                Mathf.Clamp(rand.NextFloat(valueMin, valueMax), 0, 1)
             );
 
             return new Color(color.r, color.g, color.b, rand.NextFloat(alphaMin, alphaMax));
+        }
+
+        public static Color ColorHSV(this System.Random rand, string hex, float driftH = 0, float driftS = 0, float driftV = 0, float driftA = 0)
+        {
+            ColorHSV color = UtilityUnity.ColorFromHex(hex).ToHSV();
+
+            Color retVal = Color.HSVToRGB
+            (
+                Mathf.Clamp(rand.NextDrift(color.H, driftH), 0, 1),
+                Mathf.Clamp(rand.NextDrift(color.S, driftS), 0, 1),
+                Mathf.Clamp(rand.NextDrift(color.V, driftV), 0, 1),
+                false
+            );
+
+            if (color.A.IsNearValue(1f) && driftA.IsNearZero())
+            {
+                return retVal;
+            }
+            else
+            {
+                return new Color
+                (
+                    retVal.r,
+                    retVal.g,
+                    retVal.b,
+                    Mathf.Clamp(rand.NextDrift(color.A, driftA), 0, 1)
+                );
+            }
         }
 
         #endregion

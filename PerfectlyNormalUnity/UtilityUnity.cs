@@ -43,5 +43,31 @@ namespace PerfectlyNormalUnity
 
             return coneCastHitList.ToArray();
         }
+
+        /// <summary>
+        /// Takes RGB, RGBA, RRGGBB, RRGGBBAA.  # in front is optional
+        /// </summary>
+        public static Color ColorFromHex(string hexRGBA)
+        {
+            string final = hexRGBA;
+
+            if (!final.StartsWith("#"))
+            {
+                final = "#" + final;
+            }
+
+            if (final.Length == 5)     // compressed format, has alpha
+            {
+                // #RGBA -> #RRGGBBAA
+                final = new string(new[] { '#', final[1], final[1], final[2], final[2], final[3], final[3], final[4], final[4] });
+            }
+
+            if (!ColorUtility.TryParseHtmlString(final, out Color retVal))
+            {
+                retVal = Color.magenta;
+            }
+
+            return retVal;
+        }
     }
 }

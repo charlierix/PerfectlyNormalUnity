@@ -58,15 +58,15 @@ namespace PerfectlyNormalUnity
 
             if (isBasic)
             {
-                children.Add(GetNewBasicLine(new[] { new Vector3(0, 0, 0), new Vector3(length, 0, 0) }, thickness, ColorFromHex(AXISCOLOR_X), 0, 4, false, parent));
-                children.Add(GetNewBasicLine(new[] { new Vector3(0, 0, 0), new Vector3(0, length, 0) }, thickness, ColorFromHex(AXISCOLOR_Y), 0, 4, false, parent));
-                children.Add(GetNewBasicLine(new[] { new Vector3(0, 0, 0), new Vector3(0, 0, length) }, thickness, ColorFromHex(AXISCOLOR_Z), 0, 4, false, parent));
+                children.Add(GetNewBasicLine(new[] { new Vector3(0, 0, 0), new Vector3(length, 0, 0) }, thickness, UtilityUnity.ColorFromHex(AXISCOLOR_X), 0, 4, false, parent));
+                children.Add(GetNewBasicLine(new[] { new Vector3(0, 0, 0), new Vector3(0, length, 0) }, thickness, UtilityUnity.ColorFromHex(AXISCOLOR_Y), 0, 4, false, parent));
+                children.Add(GetNewBasicLine(new[] { new Vector3(0, 0, 0), new Vector3(0, 0, length) }, thickness, UtilityUnity.ColorFromHex(AXISCOLOR_Z), 0, 4, false, parent));
             }
             else
             {
-                children.Add(GetNewPipeLine(new Vector3(0, 0, 0), new Vector3(length, 0, 0), thickness, ColorFromHex(AXISCOLOR_X), parent));
-                children.Add(GetNewPipeLine(new Vector3(0, 0, 0), new Vector3(0, length, 0), thickness, ColorFromHex(AXISCOLOR_Y), parent));
-                children.Add(GetNewPipeLine(new Vector3(0, 0, 0), new Vector3(0, 0, length), thickness, ColorFromHex(AXISCOLOR_Z), parent));
+                children.Add(GetNewPipeLine(new Vector3(0, 0, 0), new Vector3(length, 0, 0), thickness, UtilityUnity.ColorFromHex(AXISCOLOR_X), parent));
+                children.Add(GetNewPipeLine(new Vector3(0, 0, 0), new Vector3(0, length, 0), thickness, UtilityUnity.ColorFromHex(AXISCOLOR_Y), parent));
+                children.Add(GetNewPipeLine(new Vector3(0, 0, 0), new Vector3(0, 0, length), thickness, UtilityUnity.ColorFromHex(AXISCOLOR_Z), parent));
             }
 
             var retVal = new DebugItem(NextToken(), parent, children.ToArray(), new Vector3(), relativeToComponent, relativeToGameObject);
@@ -595,32 +595,6 @@ namespace PerfectlyNormalUnity
             float oneOverLen = 1f / (float)length;
 
             return new Vector3(x * oneOverLen, y * oneOverLen, z * oneOverLen);
-        }
-
-        /// <summary>
-        /// Takes RGB, RGBA, RRGGBB, RRGGBBAA.  # in front is optional
-        /// </summary>
-        private static Color ColorFromHex(string hexRGBA)
-        {
-            string final = hexRGBA;
-
-            if (!final.StartsWith("#"))
-            {
-                final = "#" + final;
-            }
-
-            if (final.Length == 5)     // compressed format, has alpha
-            {
-                // #RGBA -> #RRGGBBAA
-                final = new string(new[] { '#', final[1], final[1], final[2], final[2], final[3], final[3], final[4], final[4] });
-            }
-
-            if (!ColorUtility.TryParseHtmlString(final, out Color retVal))
-            {
-                retVal = Color.magenta;
-            }
-
-            return retVal;
         }
 
         #endregion

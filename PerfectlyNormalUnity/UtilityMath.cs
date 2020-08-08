@@ -117,6 +117,38 @@ namespace PerfectlyNormalUnity
         }
 
         /// <summary>
+        /// This returns the minimum and maximum value (throws exception if empty list)
+        /// </summary>
+        public static (float min, float max) MinMax(IEnumerable<float> values)
+        {
+            float min = float.MaxValue;
+            float max = float.MinValue;
+            bool hasEntry = false;      // don't want to use Count(), because that would iterate the whole list
+
+            foreach (float value in values)
+            {
+                hasEntry = true;
+
+                if (value < min)
+                {
+                    min = value;
+                }
+
+                if (value > max)
+                {
+                    max = value;
+                }
+            }
+
+            if (!hasEntry)
+            {
+                throw new InvalidOperationException("Sequence contains no elements");       // this is the same error that .Max() gives
+            }
+
+            return (min, max);
+        }
+
+        /// <summary>
         /// Converts a base 10 number to base 2
         /// </summary>
         public static bool[] ConvertToBase2(long value, int vectorSize)

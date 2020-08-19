@@ -19,6 +19,8 @@ namespace PerfectlyNormalUnity
     /// </remarks>
     public class TrackBallRoam : MonoBehaviour
     {
+        private const float MAXDELTA = 1f / 12f;        // lag can cause the view to jump
+
         public float MouseSensitivity_Pan = 240f;
         public float MouseSensitivity_Orbit = 360f;
         public float MouseSensitivity_Wheel = 120f;
@@ -38,8 +40,13 @@ namespace PerfectlyNormalUnity
         void Start()
         {
             Vector3 angles = transform.eulerAngles;
-            _eulerX = angles.y;
+            _eulerX = angles.y;     // euler x rotates around y axis
             _eulerY = angles.x;
+
+            if (_eulerY < MinAngle_Y)
+                _eulerY += 360f;
+            else if (_eulerY > MaxAngle_Y)
+                _eulerY -= 360f;        // this class runs -90 to 90, but on startup, the value is 358.  So turn that into -2
         }
 
         void Update()
@@ -60,17 +67,19 @@ namespace PerfectlyNormalUnity
 
             bool isShiftDown = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
 
+            float deltaTime = Math.Min(Time.deltaTime, MAXDELTA);      
+
             // Mouse wheel will act directly on position, it won't affect the velocity
-            if (!Mathf.Approximately(mouseWheel, 0f))
+            if (!mouseWheel.IsNearZero())
             {
-                transform.position += transform.forward * (mouseWheel * Time.deltaTime);
+                transform.position += transform.forward * (mouseWheel * deltaTime);
             }
 
             if (isMiddleDown)
             {
                 transform.position -=
-                    (transform.up * (mouseY * MouseSensitivity_Pan * Time.deltaTime)) +
-                    (transform.right * (mouseX * MouseSensitivity_Pan * Time.deltaTime));
+                    (transform.up * (mouseY * MouseSensitivity_Pan * deltaTime)) +
+                    (transform.right * (mouseX * MouseSensitivity_Pan * deltaTime));
             }
 
             OrbitCamera(isRightDown, isShiftDown, mouseX, mouseY);
@@ -88,8 +97,10 @@ namespace PerfectlyNormalUnity
         {
             if (isRightDown)
             {
-                _eulerX += mouseX * MouseSensitivity_Orbit * Time.deltaTime;     // the example multiplies this by orbit radius, but not Y
-                _eulerY -= mouseY * MouseSensitivity_Orbit * Time.deltaTime;
+                float deltaTime = Math.Min(Time.deltaTime, MAXDELTA);
+
+                _eulerX += mouseX * MouseSensitivity_Orbit * deltaTime;     // the example multiplies this by orbit radius, but not Y
+                _eulerY -= mouseY * MouseSensitivity_Orbit * deltaTime;
 
                 _eulerY = UtilityMath.ClampAngle(_eulerY, MinAngle_Y, MaxAngle_Y);
 

@@ -10,6 +10,61 @@ namespace PerfectlyNormalUnity
     {
         #region misc
 
+        public static (Vector3 min, Vector3 max) GetAABB(IEnumerable<Vector3> points)
+        {
+            bool foundOne = false;
+            float minX = float.MaxValue;
+            float minY = float.MaxValue;
+            float minZ = float.MaxValue;
+            float maxX = float.MinValue;
+            float maxY = float.MinValue;
+            float maxZ = float.MinValue;
+
+            foreach (Vector3 point in points)
+            {
+                foundOne = true;        // it's too expensive to look at points.Count()
+
+                if (point.x < minX)
+                {
+                    minX = point.x;
+                }
+
+                if (point.y < minY)
+                {
+                    minY = point.y;
+                }
+
+                if (point.z < minZ)
+                {
+                    minZ = point.z;
+                }
+
+                if (point.x > maxX)
+                {
+                    maxX = point.x;
+                }
+
+                if (point.y > maxY)
+                {
+                    maxY = point.y;
+                }
+
+                if (point.z > maxZ)
+                {
+                    maxZ = point.z;
+                }
+            }
+
+            if (!foundOne)
+            {
+                // There were no points passed in
+                //TODO: May want an exception
+                return (new Vector3(0, 0, 0), new Vector3(0, 0, 0));
+            }
+
+            return (new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
+        }
+
         /// <summary>
         /// This returns the location of the point relative to the triangle
         /// </summary>
@@ -185,6 +240,49 @@ namespace PerfectlyNormalUnity
 
             // Combine the two rotations
             return secondRotation * planeRotation;		// note that order is important (stand, orth is wrong)
+        }
+
+        /// <summary>
+        /// This returns the center of position of the points
+        /// NOTE: This is identical to GetAverage, just have two names depending on how the vectors are thought of (points vs vectors)
+        /// </summary>
+        public static Vector3 GetCenter(IEnumerable<Vector3> points)
+        {
+            if (points == null)
+            {
+                return new Vector3(0, 0, 0);
+            }
+
+            float x = 0f;
+            float y = 0f;
+            float z = 0f;
+
+            int length = 0;
+
+            foreach (Vector3 point in points)
+            {
+                x += point.x;
+                y += point.y;
+                z += point.z;
+
+                length++;
+            }
+
+            if (length == 0)
+            {
+                return new Vector3(0, 0, 0);
+            }
+
+            float oneOverLen = 1f / (float)length;
+
+            return new Vector3(x * oneOverLen, y * oneOverLen, z * oneOverLen);
+        }
+        /// <summary>
+        /// NOTE: This is identical to GetCenter, just have two names depending on how the vectors are thought of (points vs vectors)
+        /// </summary>
+        public static Vector3 GetAverage(IEnumerable<Vector3> vectors)
+        {
+            return GetCenter(vectors);
         }
 
         #endregion

@@ -277,12 +277,20 @@ namespace PerfectlyNormalUnity
 
             return new Vector3(x * oneOverLen, y * oneOverLen, z * oneOverLen);
         }
+        public static Vector3 GetCenter(params Vector3[] points)
+        {
+            return GetCenter((IEnumerable<Vector3>)points);
+        }
         /// <summary>
         /// NOTE: This is identical to GetCenter, just have two names depending on how the vectors are thought of (points vs vectors)
         /// </summary>
         public static Vector3 GetAverage(IEnumerable<Vector3> vectors)
         {
             return GetCenter(vectors);
+        }
+        public static Vector3 GetAverage(params Vector3[] vectors)
+        {
+            return GetCenter((IEnumerable<Vector3>)vectors);
         }
 
         #endregion

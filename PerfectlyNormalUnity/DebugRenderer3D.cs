@@ -241,6 +241,8 @@ namespace PerfectlyNormalUnity
             }
         }
 
+        //TODO: public static void AdjustPlane(DebugItem item, Plane plane) -- and the other three
+
         public static void AdjustColor(DebugItem item, Color color)
         {
             AdjustColor(item.Object, color);

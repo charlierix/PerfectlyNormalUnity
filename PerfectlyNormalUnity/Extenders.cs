@@ -975,25 +975,29 @@ namespace PerfectlyNormalUnity
 
         public static bool IsZero(this Vector3 vector)
         {
-            return vector.x == 0f && vector.y == 0f && vector.z == 0f;
+            return vector.x == 0f &&
+                vector.y == 0f &&
+                vector.z == 0f;
         }
 
         public static bool IsNearZero(this Vector3 vector)
         {
             return vector.x.IsNearZero() &&
-                        vector.y.IsNearZero() &&
-                        vector.z.IsNearZero();
+                vector.y.IsNearZero() &&
+                vector.z.IsNearZero();
         }
         public static bool IsNearValue(this Vector3 vector, Vector3 compare)
         {
             return vector.x.IsNearValue(compare.x) &&
-                        vector.y.IsNearValue(compare.y) &&
-                        vector.z.IsNearValue(compare.z);
+                vector.y.IsNearValue(compare.y) &&
+                vector.z.IsNearValue(compare.z);
         }
 
         public static bool IsInvalid(this Vector3 vector)
         {
-            return vector.x.IsInvalid() || vector.y.IsInvalid() || vector.z.IsInvalid();
+            return vector.x.IsInvalid() ||
+                vector.y.IsInvalid() ||
+                vector.z.IsInvalid();
         }
 
         public static string ToStringSignificantDigits(this Vector3 vector, int significantDigits)
@@ -1032,6 +1036,27 @@ namespace PerfectlyNormalUnity
             }
 
             return alongVectorUnit * length;
+        }
+
+        #endregion
+
+        #region quaternion
+
+        public static Vector3 ToWorld(this Quaternion quaternion, Vector3 directionLocal)
+        {
+            return quaternion * directionLocal;
+        }
+        public static Vector3 FromWorld(this Quaternion quaternion, Vector3 directionWorld)
+        {
+            return Quaternion.Inverse(quaternion) * directionWorld;
+        }
+
+        public static bool IsNearValue(this Quaternion quaternion, Quaternion compare)
+        {
+            return quaternion.x.IsNearValue(compare.x) &&
+                quaternion.y.IsNearValue(compare.y) &&
+                quaternion.z.IsNearValue(compare.z) &&
+                quaternion.w.IsNearValue(compare.w);
         }
 
         #endregion

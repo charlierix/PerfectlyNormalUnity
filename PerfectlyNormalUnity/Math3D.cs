@@ -241,6 +241,13 @@ namespace PerfectlyNormalUnity
             // Combine the two rotations
             return secondRotation * planeRotation;		// note that order is important (stand, orth is wrong)
         }
+        /// <summary>
+        /// When you take from times this return, you get to
+        /// </summary>
+        public static Quaternion GetRotation(Quaternion from, Quaternion to)
+        {
+            return Quaternion.Inverse(from) * to;
+        }
 
         /// <summary>
         /// This returns the center of position of the points

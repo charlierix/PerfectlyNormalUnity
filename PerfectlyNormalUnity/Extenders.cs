@@ -869,8 +869,11 @@ namespace PerfectlyNormalUnity
         /// This is useful for displaying a value in a textbox when you don't know the range (could be
         /// 1000001 or .1000001 or 10000.5 etc)
         /// </summary>
-        public static string ToStringSignificantDigits(this float value, int significantDigits)
+        public static string ToStringSignificantDigits(this float value, int significantDigits, bool shouldRound = true)
         {
+            if (shouldRound)
+                value = (float)Math.Round(value, significantDigits);
+
             int numDecimals = GetNumDecimals(value);
 
             if (numDecimals < 0)
@@ -933,8 +936,11 @@ namespace PerfectlyNormalUnity
         /// This is useful for displaying a double value in a textbox when you don't know the range (could be
         /// 1000001 or .1000001 or 10000.5 etc)
         /// </summary>
-        public static string ToStringSignificantDigits(this double value, int significantDigits)
+        public static string ToStringSignificantDigits(this double value, int significantDigits, bool shouldRound = true)
         {
+            if (shouldRound)
+                value = Math.Round(value, significantDigits);
+
             int numDecimals = GetNumDecimals(value);
 
             if (numDecimals < 0)
@@ -955,8 +961,11 @@ namespace PerfectlyNormalUnity
         /// This is useful for displaying a double value in a textbox when you don't know the range (could be
         /// 1000001 or .1000001 or 10000.5 etc)
         /// </summary>
-        public static string ToStringSignificantDigits(this decimal value, int significantDigits)
+        public static string ToStringSignificantDigits(this decimal value, int significantDigits, bool shouldRound = true)
         {
+            if (shouldRound)
+                value = Math.Round(value, significantDigits);
+
             int numDecimals = GetNumDecimals(value);
 
             if (numDecimals < 0)
@@ -1000,12 +1009,12 @@ namespace PerfectlyNormalUnity
                 vector.z.IsInvalid();
         }
 
-        public static string ToStringSignificantDigits(this Vector3 vector, int significantDigits)
+        public static string ToStringSignificantDigits(this Vector3 vector, int significantDigits, bool shouldRound = true)
         {
             return string.Format("{0}, {1}, {2}",
-                vector.x.ToStringSignificantDigits(significantDigits),
-                vector.y.ToStringSignificantDigits(significantDigits),
-                vector.z.ToStringSignificantDigits(significantDigits));
+                vector.x.ToStringSignificantDigits(significantDigits, shouldRound),
+                vector.y.ToStringSignificantDigits(significantDigits, shouldRound),
+                vector.z.ToStringSignificantDigits(significantDigits, shouldRound));
         }
 
         /// <summary>
@@ -1203,7 +1212,7 @@ namespace PerfectlyNormalUnity
         }
         private static string ToStringSignificantDigits_PossibleScientific_ToString(string textInvariant, string text, int significantDigits)
         {
-            Match match = Regex.Match(textInvariant, @"^(?<num>\d\.\d+)(?<exp>E(-|)\d+)$");
+            Match match = Regex.Match(textInvariant, @"^(?<num>(-|)\d\.\d+)(?<exp>E(-|)\d+)$");
             if (!match.Success)
             {
                 // Unknown

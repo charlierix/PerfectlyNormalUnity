@@ -81,35 +81,36 @@ namespace PerfectlyNormalUnity.FollowDirectionPosition
             // Attraction
             GradientEntry[] gradient = new[]
             {
-            new GradientEntry(0f, 0f),
-            new GradientEntry(2.5f, 0f),        // giving it a dead spot so it doesn't jitter
-            new GradientEntry(3f, 1f),
-        };
+                new GradientEntry(0f, 0f),
+                new GradientEntry(2.5f, 0f),        // giving it a dead spot so it doesn't jitter
+                new GradientEntry(3f, 1f),
+            };
             retVal.Add(new FollowOrientation_Worker(FollowDirectionType.Attract_Direction, mult, gradient: gradient));
 
             // Without orth drag, the body will orbit the point like a cone
-            gradient = new[]        // this gradient is needed, because there needs to be no drag along the desired axis (otherwise, this drag will fight with the user's desire to rotate the ship)
+            gradient = new[]        //TODO: See if this is really needed for standard.  It was originally there so asteroid miner ship could spin freely
             {
-            new GradientEntry(0f, 0f),     // distance, %
-            new GradientEntry(1f, 1f),
-        };
+                new GradientEntry(0f, 0f),     // distance, %
+                //new GradientEntry(1f, 1f),
+                new GradientEntry(5f, 1f),
+            };
             retVal.Add(new FollowOrientation_Worker(FollowDirectionType.Drag_Velocity_Orth, .9f * mult, gradient: gradient));
 
             // This creates a drag when the body's rotation overshoots the point
             gradient = new[]
             {
-            new GradientEntry(0f, 0f),
-            new GradientEntry(2f, 1f),
-        };
+                new GradientEntry(0f, 0f),
+                new GradientEntry(2f, 1f),
+            };
             retVal.Add(new FollowOrientation_Worker(FollowDirectionType.Drag_Velocity_AlongIfVelocityAway, .9f * mult, gradient: gradient));
 
             // As it gets close the the direction, this ramps up the drag, helping to reduce overshooting
             gradient = new[]
             {
-            new GradientEntry(0f, 0f),
-            new GradientEntry(.1f, 1f),
-            new GradientEntry(4f, 0f),
-        };
+                new GradientEntry(0f, 0f),
+                new GradientEntry(.1f, 1f),
+                new GradientEntry(4f, 0f),
+            };
             retVal.Add(new FollowOrientation_Worker(FollowDirectionType.Drag_Velocity_AlongIfVelocityToward, 1.2f * mult, gradient: gradient));
 
             // This is a small constant drag to help dampen the rotation
@@ -150,7 +151,7 @@ namespace PerfectlyNormalUnity.FollowDirectionPosition
                     ForceMode.Acceleration :
                     ForceMode.Force;
 
-                _body.AddTorque(localForce.Value, mode);
+                _body.AddTorque(localForce.Value * Percent, mode);
             }
         }
 

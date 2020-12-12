@@ -980,6 +980,40 @@ namespace PerfectlyNormalUnity
 
         #endregion
 
+        #region Vector2
+
+        public static bool IsZero(this Vector2 vector)
+        {
+            return vector.x == 0f &&
+                vector.y == 0f;
+        }
+
+        public static bool IsNearZero(this Vector2 vector)
+        {
+            return vector.x.IsNearZero() &&
+                vector.y.IsNearZero();
+        }
+        public static bool IsNearValue(this Vector2 vector, Vector2 compare)
+        {
+            return vector.x.IsNearValue(compare.x) &&
+                vector.y.IsNearValue(compare.y);
+        }
+
+        public static bool IsInvalid(this Vector2 vector)
+        {
+            return vector.x.IsInvalid() ||
+                vector.y.IsInvalid();
+        }
+
+        public static string ToStringSignificantDigits(this Vector2 vector, int significantDigits, bool shouldRound = true)
+        {
+            return string.Format("{0}, {1}",
+                vector.x.ToStringSignificantDigits(significantDigits, shouldRound),
+                vector.y.ToStringSignificantDigits(significantDigits, shouldRound));
+        }
+
+        #endregion
+
         #region Vector3
 
         public static bool IsZero(this Vector3 vector)

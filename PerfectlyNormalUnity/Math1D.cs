@@ -295,6 +295,19 @@ namespace PerfectlyNormalUnity
             return e_to_x / Math.Sqrt(Math.PI * two_s_sqr);
         }
 
+        /// <summary>
+        /// Full framework Math has this function, Mathf supports float, so adding a double overload here
+        /// </summary>
+        public static double Clamp(double value, double min, double max)
+        {
+            if (value < min)
+                return min;
+            else if (value > max)
+                return max;
+            else
+                return value;
+        }
+
         #endregion
 
         #region Private Methods

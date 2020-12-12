@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bin", "bin", "{34E22B39-32B
 		bin\.gitignore = bin\.gitignore
 		bin\GeneticSharp.Domain.dll = bin\GeneticSharp.Domain.dll
 		bin\GeneticSharp.Infrastructure.Framework.dll = bin\GeneticSharp.Infrastructure.Framework.dll
+		bin\PerfectlyNormalUnity.dll = bin\PerfectlyNormalUnity.dll
 	EndProjectSection
 EndProject
 Global

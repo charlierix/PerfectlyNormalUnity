@@ -3,16 +3,26 @@ Helper classes for unity development
 
 ---------------------------------
 
-This is meant to be classes that you can reference into your unity project
+This is meant to be helper classes that you can reference into your unity project
 
-This project's references are to the unity install location.  Since that's constantly getting updated, you'll probably have to repair those references before compiling
+---------------------------------
 
-After compiling, copy this dll from:
-PerfectlyNormalUnity\bin\Debug\netstandard2.0\PerfectlyNormalUnity.dll
+If you don't want to compile the code, you can just copy the dlls from the bin folder into your unity project's assest folder (I like to make a lib sub folder)
 
-To anywhere under your unity Assets folder (I like to make a lib folder)
+---------------------------------
 
-Then any class that you want to use this from needs a using statment at the top:
+If you want to compile the code, here are some comments about getting the solution working:
+
+This project's references are to the unity install location.  If your install locaion is different, you'll need to repair those references before compiling (it's easiest to just modify the csproj file directly).  An easy way to find the folder is to go to definition of something like Vector3 from unity.  The top of the file has a comment saysing where the dll is
+
+C:\Program Files\Unity\Editor\Data\Managed\UnityEngine\UnityEditor.dll
+C:\Program Files\Unity\Editor\Data\Managed\UnityEngine\UnityEngine.CoreModule.dll
+C:\Program Files\Unity\Editor\Data\Managed\UnityEngine\UnityEngine.InputLegacyModule.dll
+C:\Program Files\Unity\Editor\Data\Managed\UnityEngine\UnityEngine.PhysicsModule.dll
+
+There is a postbuild command that copies the dll into the bin folder.  So you can copy PerfectlyNormalUnity.dll from either bin, or bin\debug or bin\release
+
+Any class in unity that you want to use this from needs a using statment at the top:
 using PerfectlyNormalUnity;
 
 Alternatively, you can probably just copy the classes into a folder under Assets and let everything live inside unity

@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace PerfectlyNormalUnity.IK
 {
     public class IK_SingleChain_LooseRoot : MonoBehaviour
     {
-        #region Declaration Section
+#region Declaration Section
 
         //  root                                                       target
         //  (bone0) (boneLen 0) (bone1) (boneLen 1) (bone2)   ...     (boneN)
@@ -61,7 +63,7 @@ namespace PerfectlyNormalUnity.IK
         /// </summary>
         private Transform _root = null;
 
-        #endregion
+#endregion
 
         private void LateUpdate()
         {
@@ -78,15 +80,17 @@ namespace PerfectlyNormalUnity.IK
 
                 float scale = direction.magnitude * .1f;
 
+#if UNITY_EDITOR
                 Handles.matrix = Matrix4x4.TRS(current.position, Quaternion.FromToRotation(Vector3.up, direction), new Vector3(scale, direction.magnitude, scale));
                 Handles.color = Color.Lerp(Color.yellow, Color.green, (float)cntr / (float)(ChainCount - 1));
                 Handles.DrawWireCube(Vector3.up * .5f, Vector3.one);
+#endif
 
                 current = current.parent;
             }
         }
 
-        #region Private Methods
+#region Private Methods
 
         private void Init()
         {
@@ -291,6 +295,6 @@ namespace PerfectlyNormalUnity.IK
                 current.rotation = root.rotation * rotation;
         }
 
-        #endregion
+#endregion
     }
 }

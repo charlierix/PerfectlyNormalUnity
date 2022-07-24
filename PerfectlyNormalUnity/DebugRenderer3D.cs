@@ -32,6 +32,8 @@ namespace PerfectlyNormalUnity
 
         private static long _token = 0;
 
+        private GameObject _container = null;
+
         private readonly List<DebugItem> _stationary = new List<DebugItem>();
         private readonly List<DebugItem> _relativeTo = new List<DebugItem>();
 
@@ -51,8 +53,11 @@ namespace PerfectlyNormalUnity
 
         public DebugItem AddAxisLines(float length, float thickness, bool isBasic = true, Component relativeToComponent = null, GameObject relativeToGameObject = null)
         {
+            EnsureContainerExists();
+
             GameObject parent = new GameObject();
             parent.name = PREFIX + "axis lines";
+            parent.transform.SetParent(_container.transform, false);
 
             var children = new List<GameObject>();
 
@@ -78,7 +83,9 @@ namespace PerfectlyNormalUnity
 
         public DebugItem AddDot(Vector3 position, float radius, Color color, Component relativeToComponent = null, GameObject relativeToGameObject = null)
         {
-            GameObject obj = GetNewDot(position, radius, color);
+            EnsureContainerExists();
+
+            GameObject obj = GetNewDot(position, radius, color, _container);
 
             var retVal = new DebugItem(NextToken(), obj, null, position, relativeToComponent, relativeToGameObject);
 
@@ -88,8 +95,11 @@ namespace PerfectlyNormalUnity
         }
         public DebugItem AddDots(IEnumerable<Vector3> positions, float radius, Color color, Component relativeToComponent = null, GameObject relativeToGameObject = null)
         {
+            EnsureContainerExists();
+
             GameObject parent = new GameObject();
             parent.name = PREFIX + "dots";
+            parent.transform.SetParent(_container.transform, false);
 
             var children = new List<GameObject>();
 
@@ -114,7 +124,9 @@ namespace PerfectlyNormalUnity
         /// </summary>
         public DebugItem AddLine_Basic(Vector3 from, Vector3 to, float thickness, Color color, Component relativeToComponent = null, GameObject relativeToGameObject = null)
         {
-            GameObject obj = GetNewBasicLine(new[] { from, to }, thickness, color, 0, 4, false);
+            EnsureContainerExists();
+
+            GameObject obj = GetNewBasicLine(new[] { from, to }, thickness, color, 0, 4, false, _container);
 
             var retVal = new DebugItem(NextToken(), obj, null, from, relativeToComponent, relativeToGameObject);
 
@@ -124,7 +136,9 @@ namespace PerfectlyNormalUnity
         }
         public DebugItem AddLine_Basic(Vector3[] points, bool isClosed, float thickness, Color color, Component relativeToComponent = null, GameObject relativeToGameObject = null)
         {
-            GameObject obj = GetNewBasicLine(points, thickness, color, 4, 4, isClosed);
+            EnsureContainerExists();
+
+            GameObject obj = GetNewBasicLine(points, thickness, color, 4, 4, isClosed, _container);
 
             var retVal = new DebugItem(NextToken(), obj, null, GetCenter(points), relativeToComponent, relativeToGameObject);
 
@@ -138,7 +152,9 @@ namespace PerfectlyNormalUnity
         /// </summary>
         public DebugItem AddLine_Pipe(Vector3 from, Vector3 to, float thickness, Color color, Component relativeToComponent = null, GameObject relativeToGameObject = null)
         {
-            GameObject obj = GetNewPipeLine(from, to, thickness, color);
+            EnsureContainerExists();
+
+            GameObject obj = GetNewPipeLine(from, to, thickness, color, _container);
 
             var retVal = new DebugItem(NextToken(), obj, null, from, relativeToComponent, relativeToGameObject);
 
@@ -149,8 +165,11 @@ namespace PerfectlyNormalUnity
 
         public DebugItem AddCube(Vector3 position, Vector3 size, Color color, Quaternion? rotation = null, Component relativeToComponent = null, GameObject relativeToGameObject = null)
         {
+            EnsureContainerExists();
+
             GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
             obj.name = PREFIX + "cube";
+            obj.transform.SetParent(_container.transform, false);
 
             RemoveCollider(obj);
 
@@ -177,8 +196,11 @@ namespace PerfectlyNormalUnity
         {
             //https://galasoft.ch/posts/2016/06/unity-adding-children-to-a-gameobject-in-code-and-retrieving-them
 
+            EnsureContainerExists();
+
             GameObject parent = new GameObject();
             parent.name = PREFIX + "plane";
+            parent.transform.SetParent(_container.transform, false);
 
             if (center != null)
                 parent.transform.position = center.Value;
@@ -307,6 +329,12 @@ namespace PerfectlyNormalUnity
 
         #region Private Methods
 
+        private void EnsureContainerExists()
+        {
+            if (_container == null)
+                _container = new GameObject("DebugRenderer3D_Container");
+        }
+
         private static long NextToken()
         {
             return System.Threading.Interlocked.Increment(ref _token);
@@ -393,11 +421,11 @@ namespace PerfectlyNormalUnity
             float halfSize = size / 2f;
             Vector3[] points = new[]
             {
-            new Vector3(-halfSize, 0, -halfSize),
-            new Vector3(halfSize, 0, -halfSize),
-            new Vector3(halfSize, 0, halfSize),
-            new Vector3(-halfSize, 0, halfSize),
-        };
+                new Vector3(-halfSize, 0, -halfSize),
+                new Vector3(halfSize, 0, -halfSize),
+                new Vector3(halfSize, 0, halfSize),
+                new Vector3(-halfSize, 0, halfSize),
+            };
 
             objects.Add(GetNewBasicLine(points, size / 666.6667f, new Color(.33f, .33f, .33f), 0, 0, true, parent));
 

@@ -1594,6 +1594,47 @@ namespace PerfectlyNormalUnity
 
         #region random
 
+        /// <summary>
+        /// Gets a random vector with radius between maxRadius*-1 and maxRadius (bounds are spherical,
+        /// rather than cube)
+        /// </summary>
+        public static Vector3 GetRandomVector_Spherical(float maxRadius)
+        {
+            return GetRandomVector_Spherical(0, maxRadius);
+        }
+        /// <summary>
+        /// Gets a random vector with radius between maxRadius*-1 and maxRadius (bounds are spherical,
+        /// rather than cube).  The radius will never be inside minRadius
+        /// </summary>
+        /// <remarks>
+        /// The sqrt idea came from here:
+        /// http://dzindzinovic.blogspot.com/2010/05/xna-random-point-in-circle.html
+        /// </remarks>
+        public static Vector3 GetRandomVector_Spherical(float minRadius, float maxRadius)
+        {
+            // A sqrt, sin and cos  :(           can it be made cheaper?
+            float radius = minRadius + ((maxRadius - minRadius) * Mathf.Sqrt(StaticRandom.NextFloat()));		// without the square root, there is more chance at the center than the edges
+
+            return GetRandomVector_Spherical_Shell(radius);
+        }
+        /// <summary>
+        /// Gets a random vector with the radius passed in (bounds are spherical, rather than cube)
+        /// </summary>
+        public static Vector3 GetRandomVector_Spherical_Shell(float radius)
+        {
+            float theta = StaticRandom.NextFloat() * Mathf.PI * 2f;
+
+            float phi = GetPhiForRandom(StaticRandom.NextFloat(-1, 1));
+
+            float sinPhi = Mathf.Sin(phi);
+
+            float x = radius * Mathf.Cos(theta) * sinPhi;
+            float y = radius * Mathf.Sin(theta) * sinPhi;
+            float z = radius * Mathf.Cos(phi);
+
+            return new Vector3(x, y, z);
+        }
+
         public static Vector3 GetRandomVector_Cone(Vector3 axis, float minAngle, float maxAngle, float minRadius, float maxRadius)
         {
             return GetRandomVectors_Cone(1, axis, minAngle, maxAngle, minRadius, maxRadius)[0];

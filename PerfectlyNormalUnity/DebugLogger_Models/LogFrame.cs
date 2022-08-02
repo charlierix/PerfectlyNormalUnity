@@ -7,14 +7,16 @@ using UnityEngine;
 
 namespace PerfectlyNormalUnity.DebugLogger_Models
 {
+    [Serializable]
     public class LogFrame
     {
-        public string name { get; set; }       // optional
+        public string name;     // optional
 
-        public Color? back_color { get; set; }     // optional
+        //public Color? back_color;       // optional
+        public string back_color;
 
-        public ItemBase[] items { get; set; }
+        public ItemBase[] items;
 
-        public Text[] text { get; set; }
+        public Text[] text;
     }
 }

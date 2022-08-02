@@ -7,8 +7,10 @@ using UnityEngine;
 
 namespace PerfectlyNormalUnity.DebugLogger_Models
 {
+    [Serializable]
     public class ItemDot : ItemBase
     {
-        public Vector3 position { get; set; }
+        //public Vector3 position;
+        public string position;
     }
 }

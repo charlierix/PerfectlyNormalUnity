@@ -7,12 +7,15 @@ using UnityEngine;
 
 namespace PerfectlyNormalUnity.DebugLogger_Models
 {
+    [Serializable]
     public class ItemCircle_Edge : ItemBase
     {
-        public Vector3 center { get; set; }
+        //public Vector3 center;
+        public string center;       // "x, y, z"
 
-        public Vector3 normal { get; set; }
+        //public Vector3 normal;
+        public string normal;
 
-        public float radius { get; set; }
+        public float radius;
     }
 }

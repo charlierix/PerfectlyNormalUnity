@@ -7,14 +7,17 @@ using UnityEngine;
 
 namespace PerfectlyNormalUnity.DebugLogger_Models
 {
+    [Serializable]
     public class ItemSquare_Filled : ItemBase
     {
-        public Vector3 center { get; set; }
+        //public Vector3 center;
+        public string center;
 
-        public Vector3 normal { get; set; }
+        //public Vector3 normal;
+        public string normal;
 
-        public float size_x { get; set; }
+        public float size_x;
 
-        public float size_y { get; set; }
+        public float size_y;
     }
 }

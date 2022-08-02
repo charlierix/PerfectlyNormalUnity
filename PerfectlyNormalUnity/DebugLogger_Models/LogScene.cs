@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace PerfectlyNormalUnity.DebugLogger_Models
 {
+    [Serializable]
     public class LogScene
     {
-        public Category[] categories { get; set; }
+        public Category[] categories;
 
-        public LogFrame[] frames { get; set; }
+        public LogFrame[] frames;
 
-        public Text[] text { get; set; }
+        public Text[] text;
     }
 }

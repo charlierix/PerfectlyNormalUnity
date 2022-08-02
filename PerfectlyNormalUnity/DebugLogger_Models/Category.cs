@@ -7,12 +7,14 @@ using UnityEngine;
 
 namespace PerfectlyNormalUnity.DebugLogger_Models
 {
+    [Serializable]
     public class Category
     {
-        public string name { get; set; }
+        public string name;
 
-        public Color? color { get; set; }      // optional
+        //public Color? color;        // optional       // serialize has trouble with non strings
+        public string color;
 
-        public float? size_mult { get; set; }      // optional
+        public float? size_mult;        // optional
     }
 }

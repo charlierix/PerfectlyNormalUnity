@@ -59,7 +59,7 @@ namespace PerfectlyNormalUnity
         /// This can make it easier to group similar items into the same category.  All items will be shown with
         /// the color and size specified here
         /// </summary>
-        public void DefineCategory(string name = null, Color? color = null, float? size_mult = null)
+        public void DefineCategory(string name, Color? color = null, float? size_mult = null)
         {
             _categories.Add(new Category()
             {
@@ -103,14 +103,14 @@ namespace PerfectlyNormalUnity
 
         // Category and after are all optional.If a category is passed in, then the item will use that
         // category's size and color, unless overridden in the add method call
-        public void Add_Dot(Vector3 position, Category category = null, Color? color = null, float? size_mult = null, string tooltip = null)
+        public void Add_Dot(Vector3 position, string category = null, Color? color = null, float? size_mult = null, string tooltip = null)
         {
             if (!_enable_logging)
                 return;
 
             _frames[_frames.Count - 1].items = UtilityCore.ArrayAdd(_frames[_frames.Count - 1].items, new ItemDot()
             {
-                category = category,
+                category = FindCategory(category),
 
                 color = color == null ?
                     null :
@@ -122,14 +122,14 @@ namespace PerfectlyNormalUnity
                 position = Vector_to_String(position),
             });
         }
-        public void Add_Line(Vector3 point1, Vector3 point2, Category category = null, Color? color = null, float? size_mult = null, string tooltip = null)
+        public void Add_Line(Vector3 point1, Vector3 point2, string category = null, Color? color = null, float? size_mult = null, string tooltip = null)
         {
             if (!_enable_logging)
                 return;
 
             _frames[_frames.Count - 1].items = UtilityCore.ArrayAdd(_frames[_frames.Count - 1].items, new ItemLine()
             {
-                category = category,
+                category = FindCategory(category),
 
                 color = color == null ?
                     null :
@@ -143,14 +143,14 @@ namespace PerfectlyNormalUnity
 
             });
         }
-        public void Add_Circle(Vector3 center, Vector3 normal, float radius, Category category = null, Color? color = null, float? size_mult = null, string tooltip = null)
+        public void Add_Circle(Vector3 center, Vector3 normal, float radius, string category = null, Color? color = null, float? size_mult = null, string tooltip = null)
         {
             if (!_enable_logging)
                 return;
 
             _frames[_frames.Count - 1].items = UtilityCore.ArrayAdd(_frames[_frames.Count - 1].items, new ItemCircle_Edge()
             {
-                category = category,
+                category = FindCategory(category),
 
                 color = color == null ?
                     null :
@@ -164,14 +164,14 @@ namespace PerfectlyNormalUnity
                 radius = radius,
             });
         }
-        public void Add_Square(Vector3 center, Vector3 normal, float size_x, float size_y, Category category = null, Color? color = null, float? size_mult = null, string tooltip = null)
+        public void Add_Square(Vector3 center, Vector3 normal, float size_x, float size_y, string category = null, Color? color = null, float? size_mult = null, string tooltip = null)
         {
             if (!_enable_logging)
                 return;
 
             _frames[_frames.Count - 1].items = UtilityCore.ArrayAdd(_frames[_frames.Count - 1].items, new ItemSquare_Filled()
             {
-                category = category,
+                category = FindCategory(category),
 
                 color = color == null ?
                     null :
@@ -184,6 +184,23 @@ namespace PerfectlyNormalUnity
                 normal = Vector_to_String(normal),
                 size_x = size_x,
                 size_y = size_y,
+            });
+        }
+        public void Add_AxisLines(Vector3 position, Quaternion rotation, float size, string category = null, float? size_mult = null, string tooltip = null)
+        {
+            if (!_enable_logging)
+                return;
+
+            _frames[_frames.Count - 1].items = UtilityCore.ArrayAdd(_frames[_frames.Count - 1].items, new ItemAxisLines()
+            {
+                category = FindCategory(category),
+                color = null,
+                size_mult = size_mult,
+                tooltip = tooltip,
+
+                position = Vector_to_String(position),
+                rotation = Quat_to_String(rotation),
+                size = size,
             });
         }
 
@@ -303,9 +320,21 @@ namespace PerfectlyNormalUnity
             return retVal;
         }
 
+        private Category FindCategory(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
+
+            return _categories.FirstOrDefault(o => o.name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
+
         private static string Vector_to_String(Vector3 vector)
         {
             return $"{vector.x}, {vector.y}, {vector.z}";       // standard tostring wraps in parenthesis
+        }
+        private static string Quat_to_String(Quaternion quat)
+        {
+            return $"{quat.x}, {quat.y}, {quat.z}, {quat.w}";      
         }
 
         #endregion
@@ -428,6 +457,12 @@ namespace PerfectlyNormalUnity
                 AddJsonStringProp(lines, nameof(square.normal), square.normal);
                 AddJsonFloatProp(lines, nameof(square.size_x), square.size_x);
                 AddJsonFloatProp(lines, nameof(square.size_y), square.size_y);
+            }
+            else if (item is ItemAxisLines axislines)
+            {
+                AddJsonStringProp(lines, nameof(axislines.position), axislines.position);
+                AddJsonStringProp(lines, nameof(axislines.rotation), axislines.rotation);
+                AddJsonFloatProp(lines, nameof(axislines.size), axislines.size);
             }
             else
             {

@@ -26,10 +26,6 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DebugLogger_Models\" />
-  </ItemGroup>
-
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;$(SolutionDir)bin\$(ProjectName).dll&quot;" />
   </Target>

@@ -32,6 +32,7 @@ namespace PerfectlyNormalUnity
         #region Declaration Section
 
         private readonly bool _enable_logging;
+        public bool Logging_Enabled => _enable_logging;
 
         private readonly string _folder;
 
@@ -110,7 +111,7 @@ namespace PerfectlyNormalUnity
 
             _frames[_frames.Count - 1].items = UtilityCore.ArrayAdd(_frames[_frames.Count - 1].items, new ItemDot()
             {
-                category = FindCategory(category),
+                category = category,
 
                 color = color == null ?
                     null :
@@ -129,7 +130,7 @@ namespace PerfectlyNormalUnity
 
             _frames[_frames.Count - 1].items = UtilityCore.ArrayAdd(_frames[_frames.Count - 1].items, new ItemLine()
             {
-                category = FindCategory(category),
+                category = category,
 
                 color = color == null ?
                     null :
@@ -150,7 +151,7 @@ namespace PerfectlyNormalUnity
 
             _frames[_frames.Count - 1].items = UtilityCore.ArrayAdd(_frames[_frames.Count - 1].items, new ItemCircle_Edge()
             {
-                category = FindCategory(category),
+                category = category,
 
                 color = color == null ?
                     null :
@@ -171,7 +172,7 @@ namespace PerfectlyNormalUnity
 
             _frames[_frames.Count - 1].items = UtilityCore.ArrayAdd(_frames[_frames.Count - 1].items, new ItemSquare_Filled()
             {
-                category = FindCategory(category),
+                category = category,
 
                 color = color == null ?
                     null :
@@ -193,13 +194,15 @@ namespace PerfectlyNormalUnity
 
             _frames[_frames.Count - 1].items = UtilityCore.ArrayAdd(_frames[_frames.Count - 1].items, new ItemAxisLines()
             {
-                category = FindCategory(category),
+                category = category,
                 color = null,
                 size_mult = size_mult,
                 tooltip = tooltip,
 
                 position = Vector_to_String(position),
-                rotation = Quat_to_String(rotation),
+                axis_x = Vector_to_String(rotation * new Vector3(1, 0, 0)),
+                axis_y = Vector_to_String(rotation * new Vector3(0, 1, 0)),
+                axis_z = Vector_to_String(rotation * new Vector3(0, 0, 1)),
                 size = size,
             });
         }
@@ -278,6 +281,9 @@ namespace PerfectlyNormalUnity
 
             string filename = GetFilename(name);
 
+            if (!Directory.Exists(_folder))
+                Directory.CreateDirectory(_folder);
+
             //NOTE: Unity's json serializer isn't as good as the standard one.  The types need [Serializable], and only fields (not properties)
             //https://stackoverflow.com/questions/60651878/unity-c-sharp-jsonutility-functions-arent-working
 
@@ -320,21 +326,17 @@ namespace PerfectlyNormalUnity
             return retVal;
         }
 
-        private Category FindCategory(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                return null;
-
-            return _categories.FirstOrDefault(o => o.name.Equals(name, StringComparison.OrdinalIgnoreCase));
-        }
-
         private static string Vector_to_String(Vector3 vector)
         {
             return $"{vector.x}, {vector.y}, {vector.z}";       // standard tostring wraps in parenthesis
         }
         private static string Quat_to_String(Quaternion quat)
         {
-            return $"{quat.x}, {quat.y}, {quat.z}, {quat.w}";      
+            // This was for debugging
+            //quat.ToAngleAxis(out float angle, out Vector3 axis);
+            //return $"{quat.x}, {quat.y}, {quat.z}, {quat.w}|{axis.x}, {axis.y}, {axis.z}|{angle}";
+
+            return $"{quat.x}, {quat.y}, {quat.z}, {quat.w}";
         }
 
         #endregion
@@ -429,9 +431,7 @@ namespace PerfectlyNormalUnity
         {
             var lines = new List<string>();
 
-            if (item.category != null)
-                lines.Add($"\"{nameof(item.category)}\": {ToJSON(item.category, indent)}");
-
+            AddJsonStringProp(lines, nameof(item.category), item.category);
             AddJsonStringProp(lines, nameof(item.color), item.color);
             AddJsonFloatProp(lines, nameof(item.size_mult), item.size_mult);
             AddJsonStringProp(lines, nameof(item.tooltip), item.tooltip);
@@ -461,7 +461,9 @@ namespace PerfectlyNormalUnity
             else if (item is ItemAxisLines axislines)
             {
                 AddJsonStringProp(lines, nameof(axislines.position), axislines.position);
-                AddJsonStringProp(lines, nameof(axislines.rotation), axislines.rotation);
+                AddJsonStringProp(lines, nameof(axislines.axis_x), axislines.axis_x);
+                AddJsonStringProp(lines, nameof(axislines.axis_y), axislines.axis_y);
+                AddJsonStringProp(lines, nameof(axislines.axis_z), axislines.axis_z);
                 AddJsonFloatProp(lines, nameof(axislines.size), axislines.size);
             }
             else

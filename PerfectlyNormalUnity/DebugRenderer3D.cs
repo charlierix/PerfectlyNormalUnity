@@ -42,6 +42,7 @@ namespace PerfectlyNormalUnity
         void Update()
         {
             //TODO: May want to also match orientation, also may want to apply the offset position relative to the chased object's orientation
+            //Use item.RelativeToGameObject.TransformPoint()
             foreach (DebugItem item in _relativeTo)
             {
                 if (item.RelativeToComponent != null)
@@ -230,6 +231,21 @@ namespace PerfectlyNormalUnity
         public DebugItem AddPlane_PointVectors(Vector3 pointOnPlane, Vector3 direction1, Vector3 direction2, float size, Color color, int numCells = 12, Vector3? center = null, Component relativeToComponent = null, GameObject relativeToGameObject = null)
         {
             return AddPlane_ThreePoints(pointOnPlane + direction1, pointOnPlane, pointOnPlane + direction2, size, color, numCells, center, relativeToComponent, relativeToGameObject);
+        }
+
+        public DebugItem AddCircle(Vector3 position, Vector3 normal, float radius, float thickness, Color color, Component relativeToComponent = null, GameObject relativeToGameObject = null)
+        {
+            Quaternion quat = Quaternion.FromToRotation(new Vector3(0, 0, 1), normal);
+
+            Vector2[] unit_circle = Math2D.GetCircle_Cached(36);
+
+            Vector3[] points = new Vector3[unit_circle.Length];
+            for (int i = 0; i < unit_circle.Length; i++)
+            {
+                points[i] = position + (quat * (new Vector3(unit_circle[i].x, unit_circle[i].y, 0) * radius));
+            }
+
+            return AddLine_Basic(points, true, thickness, color, relativeToComponent, relativeToGameObject);
         }
 
         public static void AdjustLinePositions(DebugItem item, Vector3 from, Vector3 to, float? thickness = null)

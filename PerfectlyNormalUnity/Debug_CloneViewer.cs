@@ -58,7 +58,8 @@ namespace PerfectlyNormalUnity
 
         private void Start()
         {
-            _renderer = new DebugRenderer3D();
+            //_renderer = new DebugRenderer3D();
+            _renderer = gameObject.AddComponent<DebugRenderer3D>();
 
             Refresh();
         }

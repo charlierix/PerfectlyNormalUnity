@@ -74,10 +74,10 @@ namespace PerfectlyNormalUnity
             // I think color.ToString does the same thing, but this is explicit
             return string.Format("{0}{1}{2}{3}{4}",
                 includePound ? "#" : "",
-                includeAlpha ? ((int)color.a).ToString("X2") : "",      //  throws an exception with float (must be int)
-                ((int)color.r).ToString("X2"),
-                ((int)color.g).ToString("X2"),
-                ((int)color.b).ToString("X2"));
+                includeAlpha ? ((int)(color.a * 255)).ToString("X2") : "",      //  throws an exception with float (must be int)
+                ((int)(color.r * 255)).ToString("X2"),
+                ((int)(color.g * 255)).ToString("X2"),
+                ((int)(color.b * 255)).ToString("X2"));
         }
     }
 }

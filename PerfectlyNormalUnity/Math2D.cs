@@ -10,6 +10,7 @@ using PerfectlyNormalUnity.Clipper;
 using PerfectlyNormalUnity.GeneticSharp;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -782,6 +783,98 @@ namespace PerfectlyNormalUnity
                     final_norm = -final_norm;       // the normal flipped, flip it back
 
                 return new Plane(final_norm, final_pos);
+            }
+
+            #endregion
+        }
+
+        #endregion
+        #region class: PointsSingleton
+
+        private class PointsSingleton
+        {
+            #region Declaration Section
+
+            private static readonly object _lockStatic = new object();
+            private readonly object _lockInstance;
+
+            /// <summary>
+            /// The static constructor makes sure that this instance is created only once.  The outside users of this class
+            /// call the static property Instance to get this one instance copy.  (then they can use the rest of the instance
+            /// methods)
+            /// </summary>
+            private static PointsSingleton _instance;
+
+            private SortedList<int, Vector2[]> _points;
+
+            #endregion
+
+            #region Constructor / Instance Property
+
+            /// <summary>
+            /// Static constructor.  Called only once before the first time you use my static properties/methods.
+            /// </summary>
+            static PointsSingleton()
+            {
+                lock (_lockStatic)
+                {
+                    // If the instance version of this class hasn't been instantiated yet, then do so
+                    if (_instance == null)
+                    {
+                        _instance = new PointsSingleton();
+                    }
+                }
+            }
+            /// <summary>
+            /// Instance constructor.  This is called only once by one of the calls from my static constructor.
+            /// </summary>
+            private PointsSingleton()
+            {
+                _lockInstance = new object();
+
+                _points = new SortedList<int, Vector2[]>();
+            }
+
+            /// <summary>
+            /// This is how you get at my instance.  The act of calling this property guarantees that the static constructor gets called
+            /// exactly once (per process?)
+            /// </summary>
+            public static PointsSingleton Instance
+            {
+                get
+                {
+                    // There is no need to check the static lock, because _instance is only set one time, and that is guaranteed to be
+                    // finished before this function gets called
+                    return _instance;
+                }
+            }
+
+            #endregion
+
+            #region Public Methods
+
+            public Vector2[] GetPoints(int numSides)
+            {
+                lock (_lockInstance)
+                {
+                    if (!_points.ContainsKey(numSides))
+                    {
+                        float deltaTheta = 2f * Mathf.PI / numSides;
+                        float theta = 0f;
+
+                        Vector2[] points = new Vector2[numSides];		// these define a unit circle
+
+                        for (int cntr = 0; cntr < numSides; cntr++)
+                        {
+                            points[cntr] = new Vector2(Mathf.Cos(theta), Mathf.Sin(theta));
+                            theta += deltaTheta;
+                        }
+
+                        _points.Add(numSides, points);
+                    }
+
+                    return _points[numSides];
+                }
             }
 
             #endregion
@@ -1937,6 +2030,19 @@ namespace PerfectlyNormalUnity
         {
             Vector2 nearest = GetNearestPoint_Line_Point(ray, test);
             return (test - nearest).magnitude;
+        }
+
+        #endregion
+
+        #region hulls/graphs/triangulation
+
+        /// <summary>
+        /// This returns points around a unit circle.  The result is cached in a singleton, so any future request for the same number
+        /// of sides is fast
+        /// </summary>
+        public static Vector2[] GetCircle_Cached(int numSides)
+        {
+            return PointsSingleton.Instance.GetPoints(numSides);
         }
 
         #endregion

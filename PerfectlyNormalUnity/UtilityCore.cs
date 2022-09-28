@@ -473,6 +473,109 @@ namespace PerfectlyNormalUnity
         }
 
         /// <summary>
+        /// I had a case where I had several arrays that may or may not be null, and wanted to iterate over all of the non null ones
+        /// Usage: foreach(T item in Iterate(array1, array2, array3))
+        /// </summary>
+        /// <remarks>
+        /// I just read about a method called Concat, which seems to be very similar to this Iterate (but iterate can handle null inputs)
+        /// </remarks>
+        public static IEnumerable<T> Iterate<T>(IEnumerable<T> list1 = null, IEnumerable<T> list2 = null, IEnumerable<T> list3 = null, IEnumerable<T> list4 = null, IEnumerable<T> list5 = null, IEnumerable<T> list6 = null, IEnumerable<T> list7 = null, IEnumerable<T> list8 = null)
+        {
+            if (list1 != null)
+            {
+                foreach (T item in list1)
+                {
+                    yield return item;
+                }
+            }
+
+            if (list2 != null)
+            {
+                foreach (T item in list2)
+                {
+                    yield return item;
+                }
+            }
+
+            if (list3 != null)
+            {
+                foreach (T item in list3)
+                {
+                    yield return item;
+                }
+            }
+
+            if (list4 != null)
+            {
+                foreach (T item in list4)
+                {
+                    yield return item;
+                }
+            }
+
+            if (list5 != null)
+            {
+                foreach (T item in list5)
+                {
+                    yield return item;
+                }
+            }
+
+            if (list6 != null)
+            {
+                foreach (T item in list6)
+                {
+                    yield return item;
+                }
+            }
+
+            if (list7 != null)
+            {
+                foreach (T item in list7)
+                {
+                    yield return item;
+                }
+            }
+
+            if (list8 != null)
+            {
+                foreach (T item in list8)
+                {
+                    yield return item;
+                }
+            }
+        }
+        /// <summary>
+        /// This lets T's and IEnumerable(T)'s be intermixed
+        /// </summary>
+        public static IEnumerable<T> Iterate<T>(params object[] items)
+        {
+            foreach (object item in items)
+            {
+                if (item == null)
+                {
+                    continue;
+                }
+                else if (item is T)
+                {
+                    yield return (T)item;
+                }
+                else if (item is IEnumerable<T>)
+                {
+                    foreach (T child in (IEnumerable<T>)item)
+                    {
+                        //NOTE: child could be null.  I originally had if(!null), but that is inconsistent with how the other overload is written
+                        yield return (T)child;
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException(string.Format("Unexpected type ({0}).  Should have been singular or enumerable ({1})", item.GetType().ToString(), typeof(T).ToString()));
+                }
+            }
+        }
+
+        /// <summary>
         /// This returns all combinations of the lists passed in.  This is a nested loop, which makes it easier to
         /// write linq statements against
         /// </summary>

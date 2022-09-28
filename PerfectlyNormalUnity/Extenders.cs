@@ -1005,6 +1005,11 @@ namespace PerfectlyNormalUnity
                 vector.y.IsInvalid();
         }
 
+        public static Vector3 ToVector3(this Vector2 vector)
+        {
+            return new Vector3(vector.x, vector.y, 0);
+        }
+
         public static string ToStringSignificantDigits(this Vector2 vector, int significantDigits, bool shouldRound = true)
         {
             return string.Format("{0}, {1}",
@@ -1041,6 +1046,11 @@ namespace PerfectlyNormalUnity
             return vector.x.IsInvalid() ||
                 vector.y.IsInvalid() ||
                 vector.z.IsInvalid();
+        }
+
+        public static Vector2 ToVector2(this Vector3 vector)
+        {
+            return new Vector2(vector.x, vector.y);
         }
 
         public static string ToStringSignificantDigits(this Vector3 vector, int significantDigits, bool shouldRound = true)

@@ -289,6 +289,33 @@ namespace PerfectlyNormalUnity
             return GetCenter((IEnumerable<Vector3>)points);
         }
         /// <summary>
+        /// This returns the center of mass of the points
+        /// </summary>
+        public static Vector3 GetCenter(params (Vector3 position, float weight)[] pointsMasses)
+        {
+            if (pointsMasses == null || pointsMasses.Length == 0)
+                return new Vector3(0, 0, 0);
+
+            float totalMass = pointsMasses.Sum(o => o.weight);
+            if (totalMass.IsNearZero())
+                return GetCenter(pointsMasses.Select(o => o.position).ToArray());
+
+            float x = 0;
+            float y = 0;
+            float z = 0;
+
+            foreach (var pointMass in pointsMasses)
+            {
+                x += pointMass.position.x * pointMass.weight;
+                y += pointMass.position.y * pointMass.weight;
+                z += pointMass.position.z * pointMass.weight;
+            }
+
+            float totalMassInverse = 1f / totalMass;
+
+            return new Vector3(x * totalMassInverse, y * totalMassInverse, z * totalMassInverse);
+        }
+        /// <summary>
         /// NOTE: This is identical to GetCenter, just have two names depending on how the vectors are thought of (points vs vectors)
         /// </summary>
         public static Vector3 GetAverage(IEnumerable<Vector3> vectors)
@@ -298,6 +325,18 @@ namespace PerfectlyNormalUnity
         public static Vector3 GetAverage(params Vector3[] vectors)
         {
             return GetCenter((IEnumerable<Vector3>)vectors);
+        }
+        public static Vector3 GetAverage(params (Vector3 position, float weight)[] pointsMasses)
+        {
+            return GetCenter(pointsMasses);
+        }
+
+        public static Vector3 LERP(Vector3 a, Vector3 b, float percent)
+        {
+            return new Vector3(
+                a.x + (b.x - a.x) * percent,
+                a.y + (b.y - a.y) * percent,
+                a.z + (b.z - a.z) * percent);
         }
 
         #endregion
@@ -782,7 +821,7 @@ namespace PerfectlyNormalUnity
             // Make a plane that the circle sits in (this is used by code shared with the circle/line intersect)
             //NOTE: The plane is using nearestAxisPoint, and not the arbitrary point that was passed in (this makes later logic easier)
             Vector3 circlePlaneLine1 = nearestDistance.IsNearZero() ?
-                GetArbitraryOrhonganal(axis.direction) :
+                GetArbitraryOrthonganal(axis.direction) :
                 nearestLine;
             Vector3 circlePlaneLine2 = Vector3.Cross(axis.direction, circlePlaneLine1);
             Plane circlePlane = new Plane(nearestAxisPoint.Value, nearestAxisPoint.Value + circlePlaneLine1, nearestAxisPoint.Value + circlePlaneLine2);
@@ -1672,7 +1711,7 @@ namespace PerfectlyNormalUnity
             return retVal;
         }
 
-        public static Vector3 GetArbitraryOrhonganal(Vector3 vector)
+        public static Vector3 GetArbitraryOrthonganal(Vector3 vector)
         {
             if (vector.IsInvalid() || vector.IsNearZero())
             {

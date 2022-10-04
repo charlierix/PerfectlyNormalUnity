@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using static UnityEngine.RectTransform;
 
 namespace PerfectlyNormalUnity
 {
@@ -247,6 +248,34 @@ namespace PerfectlyNormalUnity
         public static Quaternion GetRotation(Quaternion from, Quaternion to)
         {
             return Quaternion.Inverse(from) * to;
+        }
+
+        public static Quaternion GetMirroredRotation(Quaternion quat, AxisDim normal)
+        {
+            //https://stackoverflow.com/questions/32438252/efficient-way-to-apply-mirror-effect-on-quaternion-rotation
+
+            if (quat.IsNearValue(Quaternion.identity))
+                return quat;
+
+            quat.ToAngleAxis(out float angle, out Vector3 axis);
+
+            switch (normal)
+            {
+                case AxisDim.X:
+                    //return Quaternion.AngleAxis(angle, new Vector3(axis.x, -axis.y, -axis.z));        // this is equivalent to the statement with negative angle (they both produce the same quaternion)
+                    return Quaternion.AngleAxis(-angle, new Vector3(-axis.x, axis.y, axis.z));
+
+                case AxisDim.Y:
+                    //return Quaternion.AngleAxis(angle, new Vector3(-axis.x, axis.y, -axis.z));
+                    return Quaternion.AngleAxis(-angle, new Vector3(axis.x, -axis.y, axis.z));
+
+                case AxisDim.Z:
+                    //return Quaternion.AngleAxis(angle, new Vector3(-axis.x, -axis.y, axis.z));
+                    return Quaternion.AngleAxis(-angle, new Vector3(axis.x, axis.y, -axis.z));
+
+                default:
+                    throw new ApplicationException($"Unknown AxisDim: {normal}");
+            }
         }
 
         /// <summary>

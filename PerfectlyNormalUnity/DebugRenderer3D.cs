@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;       // NOTE: had to dig to find this, it's not with the other unity dlls that this project references
 
 namespace PerfectlyNormalUnity
 {
@@ -47,6 +48,7 @@ namespace PerfectlyNormalUnity
             {
                 if (item.RelativeToComponent != null)
                     item.Object.transform.position = item.RelativeToComponent.transform.position + item.Position;
+
                 else if (item.RelativeToGameObject != null)
                     item.Object.transform.position = item.RelativeToGameObject.transform.position + item.Position;
             }
@@ -107,9 +109,7 @@ namespace PerfectlyNormalUnity
             Vector3[] posArr = positions.ToArray();
 
             foreach (Vector3 pos in posArr)
-            {
                 children.Add(GetNewDot(pos, radius, color, parent));
-            }
 
             var retVal = new DebugItem(NextToken(), parent, children.ToArray(), GetCenter(posArr), relativeToComponent, relativeToGameObject);
 
@@ -223,7 +223,7 @@ namespace PerfectlyNormalUnity
         }
         public DebugItem AddPlane_PointNormal(Vector3 pointOnPlane, Vector3 normal, float size, Color color, int numCells = 12, Vector3? center = null, Component relativeToComponent = null, GameObject relativeToGameObject = null)
         {
-            Vector3 dir1 = GetArbitraryOrhonganal(normal);
+            Vector3 dir1 = GetArbitraryOrthonganal(normal);
             Vector3 dir2 = Vector3.Cross(dir1, normal);
 
             return AddPlane_ThreePoints(pointOnPlane + dir1, pointOnPlane, pointOnPlane + dir2, size, color, numCells, center, relativeToComponent, relativeToGameObject);
@@ -241,11 +241,40 @@ namespace PerfectlyNormalUnity
 
             Vector3[] points = new Vector3[unit_circle.Length];
             for (int i = 0; i < unit_circle.Length; i++)
-            {
                 points[i] = position + (quat * (new Vector3(unit_circle[i].x, unit_circle[i].y, 0) * radius));
-            }
 
             return AddLine_Basic(points, true, thickness, color, relativeToComponent, relativeToGameObject);
+        }
+
+        public DebugItem AddText(string text, Vector3 pos, Vector3 normal, Color back_color, Color fore_color, float world_height, Component relativeToComponent = null, GameObject relativeToGameObject = null)
+        {
+            const int FONTSIZE = 12;
+
+            var (canvasObj, canvas) = AddText_CreateCanvas(pos, normal);
+            GameObject image = AddText_CreateImage(canvas.transform, back_color);
+            var (textObj, textComp) = AddText_CreateText(canvas.transform, text, fore_color);
+
+            // Apply results to text and image
+            textComp.fontSize = FONTSIZE;
+            textComp.font = Resources.GetBuiltinResource<Font>("Arial.ttf") ??
+                                   Font.CreateDynamicFontFromOSFont("Arial", FONTSIZE);
+
+            // Calculate scale and dimensions
+            var dimensions = AddText_CalculateImageDimensions(textComp, world_height, canvas.GetComponent<CanvasScaler>(), FONTSIZE);
+
+            // Apply scale to text
+            RectTransform textRect = textComp.rectTransform;
+            textRect.localScale = Vector3.one * dimensions.textScale;
+
+            // Apply image dimensions
+            image.GetComponent<RectTransform>().sizeDelta = new Vector2(dimensions.imageWidth, world_height);
+
+
+            var retVal = new DebugItem(NextToken(), canvasObj, new[] { image, textObj }, pos, relativeToComponent, relativeToGameObject);
+
+            AddItem(retVal);
+
+            return retVal;
         }
 
         public static void AdjustLinePositions(DebugItem item, Vector3 from, Vector3 to, float? thickness = null)
@@ -279,19 +308,16 @@ namespace PerfectlyNormalUnity
             }
         }
 
-        //TODO: public static void AdjustPlane(DebugItem item, Plane plane) -- and the other three
+        // TODO: public static void AdjustPlane(DebugItem item, Plane plane) -- and the other three
+        //public static void AdjustText(DebugItem item, string new_text = null, Color? new_backcolor = null, Color? new_forecolor = null)
 
         public static void AdjustColor(DebugItem item, Color color)
         {
             AdjustColor(item.Object, color);
 
             if (item.ChildObjects != null)
-            {
                 foreach (GameObject child in item.ChildObjects)
-                {
                     AdjustColor(child, color);
-                }
-            }
         }
 
         public static (float dot, float line) GetDrawSizes(float maxRadius)
@@ -328,16 +354,12 @@ namespace PerfectlyNormalUnity
         public void Remove(IEnumerable<DebugItem> items)
         {
             foreach (DebugItem item in items)
-            {
                 Remove(item);
-            }
         }
         public void Clear()
         {
             foreach (DebugItem item in _stationary.Concat(_relativeTo))
-            {
                 Destroy(item.Object);
-            }
 
             _stationary.Clear();
             _relativeTo.Clear();
@@ -499,9 +521,7 @@ namespace PerfectlyNormalUnity
             line.useWorldSpace = false;     // this is false by default in the editor, but true by default here
             line.positionCount = points.Length;
             for (int cntr = 0; cntr < points.Length; cntr++)
-            {
                 line.SetPosition(cntr, points[cntr]);
-            }
 
             line.loop = shouldLoop;
 
@@ -565,17 +585,94 @@ namespace PerfectlyNormalUnity
             }
         }
 
+        private (GameObject obj, Canvas canvas) AddText_CreateCanvas(Vector3 position, Vector3 normal)
+        {
+            // Creates a world-space Canvas
+
+            GameObject canvas = new GameObject("DynamicCanvas");
+
+            canvas.AddComponent<Canvas>().renderMode = RenderMode.WorldSpace;
+
+            canvas.AddComponent<CanvasScaler>().dynamicPixelsPerUnit = 12;     //100;
+
+            canvas.AddComponent<GraphicRaycaster>();
+            canvas.transform.position = position;
+            canvas.transform.rotation = Quaternion.LookRotation(normal, Camera.main.transform.up);
+
+            canvas.GetComponent<RectTransform>().sizeDelta = new Vector2(1, 1);     // sets width and height of the canvas to 1 (instead of default of 100).  it doesn't matter much since it's not visible and children overflow, but 100 seems excessive
+
+            return (canvas, canvas.GetComponent<Canvas>());
+        }
+        private GameObject AddText_CreateImage(Transform parent, Color color)
+        {
+            // Creates a textured background Image
+
+            GameObject image = new GameObject("Image", typeof(Image));
+
+            Image imageComp = image.GetComponent<Image>();
+            imageComp.color = color;
+
+            RectTransform rect = image.GetComponent<RectTransform>();
+
+            // These statements set anchor to center
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+
+            image.transform.SetParent(parent, false);
+
+            return image;
+        }
+        private (GameObject obj, Text comp) AddText_CreateText(Transform parent, string text, Color color)
+        {
+            // Creates a Text component
+
+            GameObject textObject = new GameObject("Text", typeof(Text));
+
+            Text textComp = textObject.GetComponent<Text>();
+            textComp.text = text;
+            textComp.color = color;
+            textComp.alignment = TextAnchor.MiddleCenter;
+            textComp.horizontalOverflow = HorizontalWrapMode.Overflow;
+            textComp.verticalOverflow = VerticalWrapMode.Overflow;
+
+            RectTransform rect = textComp.rectTransform;
+
+            // These statements set anchor to center
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+
+            rect.localScale = Vector3.one;
+
+            textObject.transform.SetParent(parent, false);
+
+            return (textObject, textComp);
+        }
+        private static (float textScale, float imageWidth) AddText_CalculateImageDimensions(Text textComponent, float desiredWorldHeight, CanvasScaler canvasScaler, float baseFontSize)
+        {
+            // Force layout update to get accurate preferred dimensions
+            LayoutRebuilder.ForceRebuildLayoutImmediate(textComponent.rectTransform);
+
+            // Calculate required scale factor
+            float scale = desiredWorldHeight / textComponent.preferredHeight;
+
+            // Now get the measured string width at the new scale to see how wide the image should be
+            float imageWidth = textComponent.preferredWidth * scale;
+
+            // Make text's scale slightly smaller so there are margins
+            scale *= 0.9f;
+
+            return (scale, imageWidth);
+        }
+
         #endregion
         #region Private Methods - utils
 
         //TODO: Move these into dedicated classes
 
-        private static Vector3 GetArbitraryOrhonganal(Vector3 vector)
+        private static Vector3 GetArbitraryOrthonganal(Vector3 vector)
         {
             if (IsInvalid(vector) || Mathf.Approximately(vector.sqrMagnitude, 0f))
-            {
                 return new Vector3(float.NaN, float.NaN, float.NaN);
-            }
 
             Vector3 rand = UnityEngine.Random.onUnitSphere;
 
@@ -584,13 +681,9 @@ namespace PerfectlyNormalUnity
                 Vector3 retVal = Vector3.Cross(vector, rand);
 
                 if (IsInvalid(retVal))
-                {
                     rand = UnityEngine.Random.onUnitSphere;
-                }
                 else
-                {
                     return retVal;
-                }
             }
 
             throw new ApplicationException("Infinite loop detected");
@@ -614,9 +707,7 @@ namespace PerfectlyNormalUnity
         private static Vector3 GetCenter(params Vector3[] points)
         {
             if (points == null)
-            {
                 return new Vector3(0, 0, 0);
-            }
 
             float x = 0f;
             float y = 0f;
@@ -634,9 +725,7 @@ namespace PerfectlyNormalUnity
             }
 
             if (length == 0)
-            {
                 return new Vector3(0, 0, 0);
-            }
 
             float oneOverLen = 1f / (float)length;
 

@@ -31,6 +31,8 @@ namespace PerfectlyNormalUnity
         private const string AXISCOLOR_Y = "00C000";
         private const string AXISCOLOR_Z = "6060FF";
 
+        private const int FONTSIZE = 12;
+
         private static long _token = 0;
 
         private GameObject _container = null;
@@ -248,8 +250,6 @@ namespace PerfectlyNormalUnity
 
         public DebugItem AddText(string text, Vector3 pos, Vector3 normal, Color back_color, Color fore_color, float world_height, Component relativeToComponent = null, GameObject relativeToGameObject = null)
         {
-            const int FONTSIZE = 12;
-
             var (canvasObj, canvas) = AddText_CreateCanvas(pos, normal);
             GameObject image = AddText_CreateImage(canvas.transform, back_color);
             var (textObj, textComp) = AddText_CreateText(canvas.transform, text, fore_color);
@@ -269,7 +269,7 @@ namespace PerfectlyNormalUnity
             // Apply image dimensions
             image.GetComponent<RectTransform>().sizeDelta = new Vector2(dimensions.imageWidth, world_height);
 
-
+            // NOTE: if the array of child objects changes, be sure to also change the indices in AdjustText()
             var retVal = new DebugItem(NextToken(), canvasObj, new[] { image, textObj }, pos, relativeToComponent, relativeToGameObject);
 
             AddItem(retVal);
@@ -309,7 +309,69 @@ namespace PerfectlyNormalUnity
         }
 
         // TODO: public static void AdjustPlane(DebugItem item, Plane plane) -- and the other three
-        //public static void AdjustText(DebugItem item, string new_text = null, Color? new_backcolor = null, Color? new_forecolor = null)
+
+        public static void AdjustText(DebugItem item, string new_text = null, Color? new_backcolor = null, Color? new_forecolor = null, float? new_worldheight = null)
+        {
+            const int INDEX_IMAGE = 0;
+            const int INDEX_TEXT = 1;
+
+            bool recalc_size = false;
+
+            Text textComp = null;
+            Image imageComp = null;
+
+            // Set text string
+            if (new_text != null)
+            {
+                recalc_size = true;
+
+                if (textComp == null)
+                    textComp = item.ChildObjects[INDEX_TEXT].GetComponent<Text>();
+
+                textComp.text = new_text;
+            }
+
+            // Set back color
+            if (new_backcolor != null)
+            {
+                if (imageComp == null)
+                    imageComp = item.ChildObjects[INDEX_IMAGE].GetComponent<Image>();
+
+                imageComp.color = new_backcolor.Value;
+            }
+
+            // Set fore color
+            if (new_forecolor != null)
+            {
+                if (textComp == null)
+                    textComp = item.ChildObjects[INDEX_TEXT].GetComponent<Text>();
+
+                textComp.color = new_forecolor.Value;
+            }
+
+            // See if world height changed
+            if (new_worldheight != null)
+                recalc_size = true;
+
+            // Change size of image and text
+            if (recalc_size)
+            {
+                if (textComp == null)
+                    textComp = item.ChildObjects[INDEX_TEXT].GetComponent<Text>();
+
+                if (imageComp == null)
+                    imageComp = item.ChildObjects[INDEX_IMAGE].GetComponent<Image>();
+
+                RectTransform image_rect = item.ChildObjects[INDEX_IMAGE].GetComponent<RectTransform>();
+
+                float world_height = new_worldheight ?? image_rect.sizeDelta.y;
+
+                var dimensions = AddText_CalculateImageDimensions(textComp, world_height, item.Object.GetComponent<CanvasScaler>(), FONTSIZE);      // item.Object is the gameobject of the canvas
+
+                textComp.rectTransform.localScale = Vector3.one * dimensions.textScale;
+                image_rect.sizeDelta = new Vector2(dimensions.imageWidth, world_height);
+            }
+        }
 
         public static void AdjustColor(DebugItem item, Color color)
         {

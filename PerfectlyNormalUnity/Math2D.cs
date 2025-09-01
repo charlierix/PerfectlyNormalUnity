@@ -1566,7 +1566,8 @@ namespace PerfectlyNormalUnity
                 }
 
                 //if (!Math1D.IsNearZero(Vector3D.DotProduct(retVal.NormalUnit, line.ToUnit())))
-                if (Math.Abs(Vector3.Dot(retVal.Value.normal.normalized, line.normalized)) > (Mathf.Epsilon * 1000))        // this was being a bit too strict.  Loosening it a little
+                //if (Math.Abs(Vector3.Dot(retVal.Value.normal.normalized, line.normalized)) > (Mathf.Epsilon * 1000))        // this was being a bit too strict.  Loosening it a little
+                if (Math.Abs(Vector3.Dot(retVal.Value.normal.normalized, line.normalized)) > UtilityMath.NEARZERO_F)
                 {
                     // This point isn't coplanar with the triangle
                     return null;

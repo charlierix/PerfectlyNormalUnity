@@ -825,12 +825,14 @@ namespace PerfectlyNormalUnity
 
         public static bool IsNearZero(this float item, float? threshold = null)
         {
-            return Math.Abs(item) <= (threshold ?? Mathf.Epsilon);
+            //return Math.Abs(item) <= (threshold ?? Mathf.Epsilon);
+            return Math.Abs(item) <= (threshold ?? UtilityMath.NEARZERO_F);
         }
 
         public static bool IsNearValue(this float item, float compare, float? threshold = null)
         {
-            float t = threshold ?? Mathf.Epsilon;
+            //float t = threshold ?? Mathf.Epsilon;
+            float t = threshold ?? UtilityMath.NEARZERO_F;
             return item >= compare - t && item <= compare + t;
         }
 
@@ -892,12 +894,14 @@ namespace PerfectlyNormalUnity
 
         public static bool IsNearZero(this double item, double? threshold = null)
         {
-            return Math.Abs(item) <= (threshold ?? Mathf.Epsilon);
+            //return Math.Abs(item) <= (threshold ?? Mathf.Epsilon);
+            return Math.Abs(item) <= (threshold ?? UtilityMath.NEARZERO);
         }
 
         public static bool IsNearValue(this double item, double compare, double? threshold = null)
         {
-            double t = threshold ?? Mathf.Epsilon;
+            //double t = threshold ?? Mathf.Epsilon;
+            double t = threshold ?? UtilityMath.NEARZERO;
             return item >= compare - t && item <= compare + t;
         }
 
@@ -1089,6 +1093,15 @@ namespace PerfectlyNormalUnity
             }
 
             return alongVectorUnit * length;
+        }
+        public static Vector3 GetProjectedVector(this Vector3 vector, ITriangle alongPlane)
+        {
+            // Get a line that is parallel to the plane, but along the direction of the vector
+            Vector3 planeNormal = alongPlane.Normal;
+            var alongLine = Vector3.Cross(planeNormal, Vector3.Cross(vector, planeNormal));
+
+            // Use the other overload to get the portion of the vector along this line
+            return vector.GetProjectedVector(alongLine);
         }
 
         #endregion
